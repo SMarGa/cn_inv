@@ -38,6 +38,7 @@ def muestra_robot(O,obj,aType):
     
 
   plt.plot(obj[0], obj[1], '*')
+  plt.plot(0, 0, 'bo')
   plt.pause(0.0001)
   plt.show()
   
