@@ -32,13 +32,11 @@ def muestra_robot(O,obj,aType):
   plt.xlim(-L,L)
   plt.ylim(-L,L)
   T = [np.array(o).T.tolist() for o in O]
+
   for i in range(len(T)):
-    
-    plt.plot(T[i][0], T[i][1], '-o', color=cs.hsv_to_rgb(i/float(len(T)),1,1))
-    
+    plt.plot(T[i][0], T[i][1], '-o', color=cs.hsv_to_rgb(i/float(len(T)),1,1))  
 
   plt.plot(obj[0], obj[1], '*')
-  plt.plot(0, 0, 'bo')
   plt.pause(0.0001)
   plt.show()
   
@@ -81,7 +79,7 @@ def sum_th(th,no_a):
 
 #plt.ion() # modo interactivo
 
-# introducción del punto para la cinemática inversa
+# Introduce el archivo de configuración
 if len(sys.argv) != 2:
   sys.exit("python " + sys.argv[0] + " falta nombre de archivo")
 
@@ -94,7 +92,10 @@ objetivo = data["objetivo"]
 a_type = data["tipo"]
 limites = data["limite"]
 
-L = max(objetivo[0],objetivo[1],sum(a)) + 5 # variable para representación gráfica
+
+# Variable para representación gráfica calculada como el máximo entre alguna de las coordenadas
+# del punto objetivo o la suma de las longitudes de las articulaciones (se le suma 5 para mejor visualización)
+L = max(objetivo[0],objetivo[1],sum(a)) + 5 
 EPSILON = .01
 
 O=cin_dir(th,a)
@@ -125,16 +126,22 @@ while (dist > EPSILON and abs(prev-dist) > EPSILON/100.):
       alpha1 = atan2(v1_y,v1_x)
       alpha2 = atan2(v2_y,v2_x)
       alpha = alpha1 - alpha2
+      
+      # Comprobación de los límites
+      
       th[-i-1] += alpha
+      
+      # Normalización
+      th[-i-1] = (th[-i-1] + pi) % (2*pi) - pi 
+
       if(th[-i-1] < limites[-i-1][0]):
         th[-i-1] = limites[-i-1][0]
       if(th[-i-1] > limites[-i-1][1]):
         th[-i-1] = limites[-i-1][1]
 
-      th[-i-1] = (th[-i-1] + pi) % (2*pi) - pi
       
 
-
+    # Caso de Articulacíon Prísmatica
     if(a_type[-i-1] == "P"):
 
       w = sum_th(th,len(th)-i -1)
@@ -148,8 +155,13 @@ while (dist > EPSILON and abs(prev-dist) > EPSILON/100.):
       d = v1_x * v2_x + v1_y * v2_y
       a[-i-1] += d
 
-      if(a[-i-1] > limites[-i-1]):
-        a[-i-1] = limites[-i-1]
+      # Comprobación de los límites
+
+      if(a[-i-1] > limites[-i-1][1]):
+        a[-i-1] = limites[-i-1][1]
+
+      if(a[-i-1] < limites[-i-1][0]):
+        a[-i-1] = limites[-i-1][0]
 
   
     
